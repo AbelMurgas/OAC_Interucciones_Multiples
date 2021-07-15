@@ -1,28 +1,39 @@
 class Interucciones_multiple():
     """Esta clase esta creada para hacer todas las operaciones necesarias para representar las interrucciones multiple"""
     def __init__(self):
-        self.Dispositivo_Prioridad = {"programa":0,} #El programa siempre va a tener la menor prioridad
-        self.proceso = []
+        self.Dispositivo_Prioridad = {"programa":1000,} #El programa siempre va a tener la menor prioridad
+        self.proceso = [[0,"programa",10,False]]
         self.Clasificacion_procesos_list = []
     
     def Agregar_Dispositvo(self,Dispositivo,Prioridad):
         """Agrega los dispositivon en conjunto con su prioridad y los coloca en eu diccionario"""
-        self.Dispositivo_Prioridad[Dispositivo] = Prioridad
+        Dispositivo = Dispositivo.lower()
+        try:
+            self.Dispositivo_Prioridad[Dispositivo] = int(Prioridad)
+            return True
+        except:
+            return False
+
 
     def Agrergar_proceso(self,Tiempo_inicial_Proceso,Dispositivo,Duracion):
         """Optiene los 3 datos: El tiempo en el que inicia, el dispositivo que corresponde y la duracion del proceso, y los coloca en una lista dentro de la Lista *Procesos*"""
-        self.proceso.append([Tiempo_inicial_Proceso,Dispositivo,Duracion,False])   
+        Dispositivo = Dispositivo.lower()
+        try:
+            self.proceso.append([int(Tiempo_inicial_Proceso),Dispositivo,int(Duracion),False]) 
+            return True
+        except:
+            return False  
         
     def Jerarquia_ASC(self,aux):
         """Esta funcion retorna verdadero si el dispositivo siguiente tiene una mayor prioridad, y false si tiene una menor prioridad"""
-        if self.Dispositivo_Prioridad.get(self.proceso[aux][1]) > self.Dispositivo_Prioridad.get(self.proceso[aux+1][1]):
+        if self.Dispositivo_Prioridad.get(self.proceso[aux][1]) < self.Dispositivo_Prioridad.get(self.proceso[aux+1][1]):
             return True
         else:
             return False
 
     def Jerarquia_DES(self,aux):
         """Esta funcion retorna verdadero si el dispositivo anterior tiene una mayor prioridad, y false si tiene una menor prioridad"""
-        if self.Dispositivo_Prioridad.get(self.proceso[aux][1]) > self.Dispositivo_Prioridad.get(self.proceso[aux-1][1]):
+        if self.Dispositivo_Prioridad.get(self.proceso[aux][1]) < self.Dispositivo_Prioridad.get(self.proceso[aux-1][1]):
             return True
         else:
             return False
@@ -61,7 +72,7 @@ class Interucciones_multiple():
                     return (aux-1)
                 else:
                     return aux
-        
+
     def simulacion_proceso(self):
         """Simula el proceso ya habiendo obtenido los dispositivos y los datos de cada uno de los proceso"""
         aux = 0 #El auxiliar, apunta a una dirreccion en la lista
@@ -74,7 +85,7 @@ class Interucciones_multiple():
                 tiempo_proceso = tiempo_proceso - 1
                 time = time + 1
                 if tiempo_proceso == 0: #Significa que el proceso termino, llegando su duracion a 0
-                    self.Clasificacion_procesos(tiempo_inicial, self.proceso[aux][1], time, False)
+                    self.Clasificacion_procesos(tiempo_inicial, self.proceso[aux][1], time, False, False)
                     self.proceso.pop(aux)
                     aux = aux - 1
                 if self.Interruccion_proceso(time, aux): 
@@ -83,40 +94,31 @@ class Interucciones_multiple():
                     else:
                         if tiempo_proceso == 0:
                             break
-                        self.Clasificacion_procesos(tiempo_inicial, self.proceso[aux][1], time, True)
+                        self.Clasificacion_procesos(tiempo_inicial, self.proceso[aux][1], time, True, self.proceso[aux+1][1])
                         self.proceso[aux][3] = True
                         self.proceso[aux][2] = tiempo_proceso
                         break
             aux = aux + 1
-        return time
+        return 
 
-    def Clasificacion_procesos(self,tiempo_inicial,dispositivo,tiempo_final, interrumpido):
+    def Clasificacion_procesos(self,tiempo_inicial,dispositivo,tiempo_final, interrumpido, Dispositivo_interrumpio):
         """Recopila informacion de la simulacion del proceso, para obtener el tiempo inicial, el final, el dispositivo que esta acuando en ese rango de tiemo, y si esyte fue interrumpido o no"""
-        self.Clasificacion_procesos_list.append([tiempo_inicial,tiempo_final,dispositivo,interrumpido])
+        mensaje_interruccion = "No fue interrumpida"
+        if interrumpido:
+            mensaje_interruccion = ("Fue interrumpida por el/la {}").format(Dispositivo_interrumpio)
 
-    def Desglosado_tiempo(self):
-        pass
+        self.Clasificacion_procesos_list.append([tiempo_inicial,tiempo_final,dispositivo,mensaje_interruccion])
+
+    def busqueda_proceso(self,tiempo):
+        """Hace busqueda de un proceso mediante el tiempo, retornando el dispositivo que estuvo en ese tiempo, si fue interrumpido, y su rango de tiempo en el proceso"""
+        for i in self.Clasificacion_procesos_list:
+            if i[0] <= tiempo and tiempo <= i[1]:
+                print(("En el segudo {} se estaba ejecuntado el/la {} su intervalo fue desde el segundo {} al segundo {} y {}").format(tiempo,i[2],i[0],i[1],i[3]))
+                break
                     
                             
            
-x = Interucciones_multiple()
-
-x.Agregar_Dispositvo("COM3",8)
-x.Agregar_Dispositvo("Co-Proc Matematico",12)
-x.Agregar_Dispositvo("Red",14)
-x.Agregar_Dispositvo("Floppy-Diskette",4)
-
-x.Agrergar_proceso(0, "programa", 10)
-x.Agrergar_proceso(4,"COM3",8)
-x.Agrergar_proceso(9,"Co-Proc Matematico",5)
-x.Agrergar_proceso(12,"Floppy-Diskette",15)
-x.Agrergar_proceso(25,"Red",12)
-x.Agrergar_proceso(35,"COM3",3)
-x.Agrergar_proceso(43,"Co-Proc Matematico",5)
-
-x.Desarrollo()
-
-                    
+                
 
 
 
