@@ -4,8 +4,8 @@ class Interucciones_multiple():
         self.Dispositivo_Prioridad = {"programa":1000,} #El programa siempre va a tener la menor prioridad
         self.proceso = [[0,"programa",10,False]]
         self.Clasificacion_procesos_list = []
-    
-    def Agregar_Dispositvo(self,Dispositivo,Prioridad):
+        self.time = 0
+    def Agregar_Dispositvo(self,Dispositivo,Prioridad): 
         """Agrega los dispositivon en conjunto con su prioridad y los coloca en eu diccionario"""
         Dispositivo = Dispositivo.lower()
         try:
@@ -76,44 +76,42 @@ class Interucciones_multiple():
     def simulacion_proceso(self):
         """Simula el proceso ya habiendo obtenido los dispositivos y los datos de cada uno de los proceso"""
         aux = 0 #El auxiliar, apunta a una dirreccion en la lista
-        time = 0 #El tiempo en todo el trayecto del proceso
         while (len(self.proceso))!= 0: #esta simulacion sera dada hasta que todos los procesos terminen
-            aux = self.Punto_Proceso(aux,time)
+            aux = self.Punto_Proceso(aux,self.time)
             tiempo_proceso = self.proceso[aux][2]
-            tiempo_inicial = time
+            tiempo_inicial = self.time
             for i in range(self.proceso[aux][2]): #Comienzo del proceso
                 tiempo_proceso = tiempo_proceso - 1
-                time = time + 1
+                self.time = self.time + 1
                 if tiempo_proceso == 0: #Significa que el proceso termino, llegando su duracion a 0
-                    self.Clasificacion_procesos(tiempo_inicial, self.proceso[aux][1], time, False, False)
+                    self.Clasificacion_procesos(tiempo_inicial, self.proceso[aux][1],self.time, False, False,0)
                     self.proceso.pop(aux)
                     aux = aux - 1
-                if self.Interruccion_proceso(time, aux): 
+                if self.Interruccion_proceso(self.time, aux): 
                     if self.Jerarquia_ASC(aux):
                         self.proceso[aux+1][3] = True
                     else:
                         if tiempo_proceso == 0:
                             break
-                        self.Clasificacion_procesos(tiempo_inicial, self.proceso[aux][1], time, True, self.proceso[aux+1][1])
+                        self.Clasificacion_procesos(tiempo_inicial, self.proceso[aux][1],self.time, True, self.proceso[aux+1][1],tiempo_proceso)
                         self.proceso[aux][3] = True
                         self.proceso[aux][2] = tiempo_proceso
                         break
             aux = aux + 1
-        return 
 
-    def Clasificacion_procesos(self,tiempo_inicial,dispositivo,tiempo_final, interrumpido, Dispositivo_interrumpio):
+    def Clasificacion_procesos(self,tiempo_inicial,dispositivo,tiempo_final, interrumpido, Dispositivo_interrumpio,Tiempo_Termina):
         """Recopila informacion de la simulacion del proceso, para obtener el tiempo inicial, el final, el dispositivo que esta acuando en ese rango de tiemo, y si esyte fue interrumpido o no"""
         mensaje_interruccion = "No fue interrumpida"
         if interrumpido:
             mensaje_interruccion = ("Fue interrumpida por el/la {}").format(Dispositivo_interrumpio)
 
-        self.Clasificacion_procesos_list.append([tiempo_inicial,tiempo_final,dispositivo,mensaje_interruccion])
+        self.Clasificacion_procesos_list.append([tiempo_inicial,tiempo_final,dispositivo,mensaje_interruccion, Tiempo_Termina])
 
-    def busqueda_proceso(self,tiempo):
+    def busqueda_proceso(self,tiempo): 
         """Hace busqueda de un proceso mediante el tiempo, retornando el dispositivo que estuvo en ese tiempo, si fue interrumpido, y su rango de tiempo en el proceso"""
         for i in self.Clasificacion_procesos_list:
             if i[0] <= tiempo and tiempo <= i[1]:
-                print(("En el segudo {} se estaba ejecuntado el/la {} su intervalo fue desde el segundo {} al segundo {} y {}").format(tiempo,i[2],i[0],i[1],i[3]))
+                print(("En el segudo {} se estaba ejecuntado el/la {}\nSu intervalo fue desde el segundo {} al segundo {}\n{}\ntiempo para que finalizara {}seg").format(tiempo,i[2],i[0],i[1],i[3],i[4]))
                 break
                     
                             
